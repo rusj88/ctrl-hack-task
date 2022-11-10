@@ -5,17 +5,20 @@
         <input
           :value="values.price"
           @input="updateValueDebounced('price', $event.target.value)"
-          type="text"
+          type="number"
+          step="1"
         />
         <input
           :value="values.qty"
           @input="updateValueDebounced('qty', $event.target.value)"
-          type="text"
+          type="number"
+          step="1"
         />
         <input
           :value="values.amount"
           @input="updateValueDebounced('amount', $event.target.value)"
-          type="text"
+          type="number"
+          step="1"
         />
         <button @click.prevent="handleClick">submit</button>
       </div>
@@ -24,11 +27,7 @@
         <label>{{ values.qty }}</label>
         <label>{{ values.amount }}</label>
         <label>
-          <ul>
-            <li v-for="(item, index) in localStorageProps" :key="index">
-              {{ item }}
-            </li>
-          </ul>
+          {{ localStorageCopy }}
         </label>
       </div>
       <div class="controls">
@@ -56,7 +55,7 @@ export default {
       queue: ["price", "qty", "amount"],
       nonce: 0,
       log: [],
-      localStorageProps: [],
+      localStorageCopy: "",
     };
   },
   mounted() {
@@ -97,10 +96,8 @@ export default {
       this.addLog("button was pressed");
       setTimeout(() => {
         if (this.values.amount % 2 === 0) {
-          for (let key in this.values) {
-            localStorage.setItem(key, this.values[key]);
-          }
-          localStorage.setItem("nonce", ++this.nonce);
+          const data = JSON.stringify({ ...this.values, nonce: ++this.nonce });
+          localStorage.setItem("savedData", data);
           this.cloneLocalStorage();
           this.addLog("{success:true}");
         } else {
@@ -114,12 +111,7 @@ export default {
     },
 
     cloneLocalStorage() {
-      const copy = [];
-      const keys = Object.keys(localStorage);
-      for (let key of keys) {
-        copy.push(`${key}: ${localStorage.getItem(key)}`);
-      }
-      this.localStorageProps = [...copy];
+      this.localStorageCopy = JSON.parse(localStorage.getItem("savedData"));
     },
   },
 };
